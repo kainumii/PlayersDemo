@@ -1,0 +1,131 @@
+﻿@page "/players/list/{present:int?}"
+@using PlayersDemo.Data
+@using PlayersDemo.Data.Models
+@using Microsoft.EntityFrameworkCore
+@inject IDbContextFactory<PlayersDbContext> ContextFactory
+@inject IJSRuntime JsRuntime
+@inject StateManager StateManager
+
+<PageTitle>Players Overview</PageTitle>
+
+<h3>Players Overview</h3>
+
+@if (Players is null)
+{ 
+    <div>Players is null</div>
+}
+else
+{
+    
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>First name</th>
+                <th>Last name</th>
+                <th>Is Right</th>
+                <th>Team</th>
+                <th>Position</th>
+                <th>Citizenship</th>
+                <th>Modify</th>
+            </tr>
+        </thead>
+        <tbody>
+           
+                @foreach(var p in Players)
+            {
+                <tr>
+                    <td>
+                        @p.FirstName
+                    </td>
+                    <td>
+                        @p.LastName
+                    </td>
+                    <td>
+                        @p.IsRight
+                    </td>
+                    <td>
+                        @p.Team?.Name
+
+                    </td>
+                    <td>
+                        @p.Position
+
+                    </td>
+                    <td>                        
+                        @p.Citizenship?.Name
+                    </td>
+                    <td>
+                        <a href="/players/edit/@p.Id" class="btn btn-outline-primary">Edit</a>
+                        <button class="btn btn-outline-danger" @onclick="(() => HandleDelete(p))">Delete</button>
+
+                    </td>
+
+                </tr>
+                }
+            
+        </tbody>
+    </table>
+
+    <ul class="pagination">
+        <li class="page-item @(Present == 1 ? "disabled" : "")">
+            <a class="page-link" href="/players/list/@(Present - 1)"> &lt; </a>
+        </li>
+        <li class="page-item @(Present == Pages ? "disabled" : "")">
+            <a class="page-link" href="/players/list/@(Present + 1)"> &gt; </a>
+        </li>
+    </ul>
+}
+
+@code {
+    private const int PlayersPerPage = 3;
+    private Player[]? Players { get; set; }
+
+    [Parameter]
+    public int? Present { get; set; }
+
+    public int Pages { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Present == null)
+        {
+            Present = 1;
+        }
+
+        var context = ContextFactory.CreateDbContext();
+
+        var playersCount = await context.Players.CountAsync();
+        var pages = (int)Math.Ceiling((decimal)playersCount / PlayersPerPage);
+        Pages = pages;
+        var skip = (Present.Value - 1) * PlayersPerPage;
+
+        StateManager.Page = Present.Value;
+
+        var players = await context.Players
+            .Include(p => p.Team)
+            .Include(p => p.Citizenship)
+            .OrderBy(p => p.FirstName)
+            .Skip(skip)
+            .Take(PlayersPerPage)
+            .ToArrayAsync();
+
+        Players = players;
+    }
+
+    private async Task HandleDelete(Player p) 
+    {
+        bool canRemove = await JsRuntime.InvokeAsync<bool>("confirm", $"Are you sure? Remove {p.FirstName} {p.LastName}??");
+
+        if (canRemove)
+        {
+            var context = ContextFactory.CreateDbContext();
+
+            context.Remove(p);
+
+            await context.SaveChangesAsync();
+
+            // refresh
+            await OnParametersSetAsync();
+        }
+    }
+}

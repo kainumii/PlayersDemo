@@ -1,0 +1,70 @@
+﻿@page "/players/edit/{playerId:int}"
+@using Microsoft.EntityFrameworkCore
+@using PlayersDemo.Data.Models
+@using PlayersDemo.Data
+@inject IDbContextFactory<PlayersDbContext> ContextFactory
+@inject NavigationManager NavigationManager
+@inject StateManager StateManager
+
+<h3>EditPlayer</h3>
+
+<PlayerForm Player="@Player" Teams="@Teams" Citizenships="@Citizenships" IsEdit="@true" OnSubmit="@HandleSubmit">
+
+</PlayerForm>
+@if (ErrorMsg is not null)
+{
+    <div class="alert alert-danger">@ErrorMsg</div>
+}
+
+@code {
+
+    public Player? Player { get; set; }
+
+    public Team[]? Teams { get; set; }
+
+    public Citizenship[]? Citizenships { get; set; }
+
+    private string? ErrorMsg { get; set; }
+
+    [Parameter]
+    public int PlayerId { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var context = ContextFactory.CreateDbContext();
+
+        var id = PlayerId;
+        var player = await context.Players.FirstOrDefaultAsync(p => p.Id == id);
+
+        var teams = await context.Teams.AsNoTracking().ToArrayAsync();
+        var citizenships = await context.Citizenships.AsNoTracking().ToArrayAsync();
+
+        Player = player;
+        Teams = teams;
+        Citizenships = citizenships;
+    }
+
+    private async Task HandleSubmit(bool isValid) 
+    {
+        if(Player is not null)
+        {
+            if (isValid)
+            {
+                try
+                {
+                    var context = ContextFactory.CreateDbContext();
+                    context.Update(Player);
+
+                    await context.SaveChangesAsync();
+                    
+                    int page = StateManager.Page;
+                    NavigationManager.NavigateTo($"/players/list/{page}");
+                }
+                catch (Exception ex)
+                {
+                    ErrorMsg = $"Failed! {ex.Message}"; 
+               }
+            }
+        }
+    }
+}

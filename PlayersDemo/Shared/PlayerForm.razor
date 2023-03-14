@@ -1,0 +1,156 @@
+﻿@using PlayersDemo.Data.Models
+@if (Player is not null)
+{
+    <EditForm Model="@Player" OnValidSubmit="@HandleValidSubmit" OnInvalidSubmit="@HandleInvalidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="firstname" class="form-label">Firstname:</label>
+                    <InputText id="firstname" @bind-Value="Player.FirstName" class="form-control" />
+                    <ValidationMessage For="() => Player.FirstName" />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="lastname" class="form-label">Lastname:</label>
+                    <InputText id="lastname" @bind-Value="Player.LastName" class="form-control" />
+                    <ValidationMessage For="() => Player.LastName" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="team" class="form-label">Team:</label>
+                    <InputSelect id="team" @bind-Value="Player.TeamId" class="form-select">
+                        @if (Teams is not null)
+                        {
+                            @foreach (var team in Teams)
+                            {
+                                <option value="@team.Id">@team.Name</option>
+                            }
+                        }
+                    </InputSelect>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="citizenship" class="form-label">Citizenship:</label>
+                    <InputSelect id="citizenship" @bind-Value="Player.CitizenshipId" class="form-select">
+                        @if (Citizenships is not null)
+                        {
+                            @foreach (var cs in Citizenships)
+                            {
+                                <option value="@cs.Id">@cs.Name</option>
+                            }
+                        }
+                    </InputSelect>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="position" class="form-label">Position:</label>
+                    <InputSelect id="position" @bind-Value="Player.Position" class="form-select">
+                        @foreach(var pos in Enum.GetValues(typeof(Position)))
+                        {
+                            <option value="@pos">@pos</option>
+                        }
+                    </InputSelect>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="isright" class="form-label">Is Right:</label>
+                    <InputCheckbox id="isright" @bind-Value="Player.IsRight" class="form-check-input" />
+                </div>
+             </div>
+        </div>
+
+       @* <div class="col-md-6 mb-3">
+            <label for="firstname" class="form-label">Firstname:</label>
+            <InputText id="firstname" @bind-Value="Player.FirstName" class="form-control" />
+            <ValidationMessage For="() => Player.FirstName" />
+        </div>
+        <div class="col-md-6 mb-3">
+            <label for="lastname" class="form-label">Lastname:</label>
+            <InputText id="lastname" @bind-Value="Player.LastName" class="form-control" />
+            <ValidationMessage For="() => Player.LastName" />
+        </div>
+        
+        <div class="col-md-6 mb-3">
+            <label for="team" class="form-label">Team:</label>
+            <InputSelect id="team" @bind-Value="Player.TeamId" class="form-select">
+                @if (Teams is not null)
+                {
+                    @foreach (var team in Teams)
+                    {
+                        <option value="@team.Id">@team.Name</option>
+                    }
+                }
+            </InputSelect>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label for="citizenship" class="form-label">Citizenship:</label>
+            <InputSelect id="citizenship" @bind-Value="Player.CitizenshipId" class="form-select">
+                @if (Citizenships is not null)
+                {
+                    @foreach (var cs in Citizenships)
+                    {
+                        <option value="@cs.Id">@cs.Name</option>
+                    }
+                }
+            </InputSelect>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label for="position" class="form-label">Position:</label>
+            <InputSelect id="position" @bind-Value="Player.Position" class="form-select">
+                @foreach(var pos in Enum.GetValues(typeof(Position)))
+                {
+                    <option value="@pos">@pos</option>
+                }
+            </InputSelect>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label for="isright" class="form-label">Is Right:</label>
+            <InputCheckbox id="isright" @bind-Value="Player.IsRight" class="form-check-input" />
+        </div>*@
+        @if (IsEdit) 
+        {
+            <button type="submit" class="btn btn-primary">Update</button>
+            <button type="submit" class="btn btn-secondary">Cancel</button>
+        }
+        else
+        {
+            <button type="submit" class="btn btn-primary">Add</button>
+        }
+        
+    </EditForm>
+}
+
+@code {
+    [Parameter]
+    public Player? Player { get; set; }
+
+    [Parameter]
+    public Team[]? Teams { get; set; }
+
+    [Parameter]
+    public Citizenship[]? Citizenships { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> OnSubmit { get; set; }
+
+    [Parameter]
+    public bool IsEdit { get; set; }
+
+    private async Task HandleValidSubmit() 
+    {
+        if (OnSubmit.HasDelegate)
+        {
+            await OnSubmit.InvokeAsync(true);
+        }
+    }
+
+    private async Task HandleInvalidSubmit()
+    {
+        if (OnSubmit.HasDelegate)
+        {
+            await OnSubmit.InvokeAsync(false);
+        }
+    }
+}

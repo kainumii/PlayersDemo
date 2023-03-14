@@ -1,0 +1,68 @@
+﻿@using PlayersDemo.Data.Models
+@using PlayersDemo.Data
+@using Microsoft.EntityFrameworkCore
+@inject IDbContextFactory<PlayersDbContext> ContextFactory
+@page "/players/add"
+
+<h3>Add new Player</h3>
+
+<PageTitle>Add new Player</PageTitle>
+
+<div class="alert @Status">@Message</div>
+
+<PlayerForm Player="@Player" Teams="@Teams" Citizenships="@Citizenships" OnSubmit="@HandleSubmit"/>
+
+@code {
+    private Player? Player { get; set; }
+
+    private Team[]? Teams { get; set; }
+
+    private Citizenship[]? Citizenships { get; set; }
+
+    private string Status = string.Empty;
+    private string Message = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        using var context = ContextFactory.CreateDbContext();
+        Teams = await context.Teams.ToArrayAsync();
+        Citizenships = await context.Citizenships.ToArrayAsync();
+
+        Player = new Player { 
+            TeamId = Teams.FirstOrDefault()?.Id, 
+            CitizenshipId = Citizenships.FirstOrDefault()?.Id };
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (Player is not null)
+        {
+            using var context = ContextFactory.CreateDbContext();
+
+            context.Players.Add(Player);
+            await context.SaveChangesAsync();
+
+            Status = "alert-success";
+            Message = $"Player {Player.FirstName} {Player.LastName} added successfully.";
+
+            Player = new Player();
+        }
+    }
+
+    private async Task HandleSubmit(bool isValid) 
+    {
+        if (isValid)
+        {
+            await HandleValidSubmit();
+        }
+        else
+        {
+            HandleInvalidSubmit();
+        }
+    }
+
+    private void HandleInvalidSubmit() 
+    { 
+    }
+}
