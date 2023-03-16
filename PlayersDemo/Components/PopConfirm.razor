@@ -1,0 +1,51 @@
+﻿@using PlayersDemo.Data.Models
+
+@*<div class="container">
+    <div class="popconfirm">
+        Are you sure?
+        Remove @CurrentPlayer?.FirstName @CurrentPlayer?.LastName?
+        <hr/>
+        <button type="button" class="btn btn-primary" @onclick="() => HandleDeleteClick(false)">No</button>
+        <button type="button" class="btn btn-secondary" @onclick="() => HandleDeleteClick(true)">Yes</button>
+    </div>
+</div>*@
+
+<div class="modal fade show" id="myModal" style="display:block; background-color: rgba(10,10,10,.8);" aria-modal="true" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">@Title</h4>
+                <button type="button" class="close" @onclick="() => HandleDeleteClick(false)">X</button>
+            </div>
+            <div class="modal-body">
+                <p>@Message Remove player @CurrentPlayer?.FirstName @CurrentPlayer?.LastName ?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" @onclick="() => HandleDeleteClick(false)">Cancel</button>
+                <button type="button" class="btn btn-secondary" @onclick="() => HandleDeleteClick(true)">Remove</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+
+    // Declare an EventCallback that consuming component can register an interest in.
+    [Parameter]
+    public EventCallback<bool> ConfirmedChanged { get; set; }
+
+    [Parameter]
+    public Player? CurrentPlayer { get; set; }
+
+    [Parameter]
+    public string? Message { get; set; }
+    
+    [Parameter]
+    public string? Title { get; set; }
+
+    // Emit emit
+    public async Task HandleDeleteClick(bool joo)
+    {
+        await ConfirmedChanged.InvokeAsync(joo);
+    }
+}

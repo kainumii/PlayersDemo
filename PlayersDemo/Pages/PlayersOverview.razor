@@ -2,6 +2,7 @@
 @using PlayersDemo.Data
 @using PlayersDemo.Data.Models
 @using Microsoft.EntityFrameworkCore
+@using PlayersDemo.Components
 @inject IDbContextFactory<PlayersDbContext> ContextFactory
 @inject IJSRuntime JsRuntime
 @inject StateManager StateManager
@@ -16,7 +17,8 @@
 }
 else
 {
-    
+    <div>@Present / @Pages</div>
+        
     <table class="table table-striped">
         <thead>
             <tr>
@@ -56,7 +58,7 @@ else
                     </td>
                     <td>
                         <a href="/players/edit/@p.Id" class="btn btn-outline-primary">Edit</a>
-                        <button class="btn btn-outline-danger" @onclick="(() => HandleDelete(p))">Delete</button>
+                        <button class="btn btn-danger" @onclick="(() => HandleDelete(p))">Delete</button>
 
                     </td>
 
@@ -73,10 +75,23 @@ else
         <li class="page-item @(Present == Pages ? "disabled" : "")">
             <a class="page-link" href="/players/list/@(Present + 1)"> &gt; </a>
         </li>
-    </ul>
+        
+    </ul> 
+    
+    
+
+    @if (Show)
+    { 
+        // Set ConfirmedChanged event to execute the Test method when event is emitted.
+        <PopConfirm CurrentPlayer="@CurrentPlayer" Message="Are you sure?" Title="Remove Player" ConfirmedChanged="Test"/>
+    }
 }
 
+
 @code {
+    public Player? CurrentPlayer { get; set; }
+    public bool Show { get; set; } = false;
+
     private const int PlayersPerPage = 3;
     private Player[]? Players { get; set; }
 
@@ -87,7 +102,8 @@ else
 
     protected override async Task OnParametersSetAsync()
     {
-        if (Present == null)
+        // Too Low Present page
+        if (Present == null || Present.Value <= 0 )
         {
             Present = 1;
         }
@@ -97,6 +113,13 @@ else
         var playersCount = await context.Players.CountAsync();
         var pages = (int)Math.Ceiling((decimal)playersCount / PlayersPerPage);
         Pages = pages;
+
+        // Too High Present page
+        if (Present > pages)
+        {
+            Present = pages;
+        }
+
         var skip = (Present.Value - 1) * PlayersPerPage;
 
         StateManager.Page = Present.Value;
@@ -112,20 +135,45 @@ else
         Players = players;
     }
 
-    private async Task HandleDelete(Player p) 
+    private async Task Test(bool isConfirmed)
     {
-        bool canRemove = await JsRuntime.InvokeAsync<bool>("confirm", $"Are you sure? Remove {p.FirstName} {p.LastName}??");
+        Show = false;
 
-        if (canRemove)
+        if (isConfirmed) 
         {
-            var context = ContextFactory.CreateDbContext();
+            try
+            {
+                var context = ContextFactory.CreateDbContext();
 
-            context.Remove(p);
+                context.Remove(CurrentPlayer);
 
-            await context.SaveChangesAsync();
+                await context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            { }
 
             // refresh
             await OnParametersSetAsync();
         }
+    }
+
+    private async Task HandleDelete(Player p) 
+    {
+        //bool canRemove = await JsRuntime.InvokeAsync<bool>("confirm", $"Are you sure? Remove {p.FirstName} {p.LastName}??");
+
+        //if (canRemove)
+        //{
+        //    var context = ContextFactory.CreateDbContext();
+
+        //    context.Remove(p);
+
+        //    await context.SaveChangesAsync();
+
+        //    // refresh
+        //    await OnParametersSetAsync();
+        //}
+
+        CurrentPlayer = p;
+        Show = true;
     }
 }

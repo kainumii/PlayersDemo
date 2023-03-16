@@ -23,8 +23,10 @@ namespace PlayersDemo.Data.Models
 
         [Required]
         public int? CitizenshipId { get; set; }
-        
         public Citizenship? Citizenship { get; set; }
+
+        [Timestamp]
+        public byte[]? Timestamp { get; set; }
     }
 
     public enum Position
