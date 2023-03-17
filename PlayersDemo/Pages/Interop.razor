@@ -1,0 +1,69 @@
+﻿@page "/interop"
+
+@inject IJSRuntime IJSRuntime
+@using PlayersDemo.Data.Models
+
+<h3>Interop</h3>
+
+<h5>Call a Javascript function that returns void</h5>
+<button class="btn btn-primary" @onclick="ReturnsVoid">Returns void</button>
+<hr/>
+
+<h5>Pass a .Net object to Javascript function</h5>
+<button class="btn btn-primary" @onclick="PassObject">Pass object</button>
+<hr />
+
+<h5>Call javascript function that returns a value</h5>
+<button class="btn btn-primary" @onclick="ReturnsValue">Return a value</button>
+<div>@Result</div>
+<hr/>
+
+<h5>Get object as a Return value</h5>
+<button class="btn btn-primary" @onclick="ObjectAsReturnValue">Get object as a return value</button>
+<div>@Player?.LastName @Player?.FirstName @Player?.IsRight @Player?.Position</div>
+<hr />
+
+<h5>Pass HTML element reference</h5>
+<div class="form-group">
+    <label>Element to focus</label>
+    <input @ref="elementToFocus" type="text" class="form-control mb-3"/>
+</div>
+<button class="btn btn-primary" @onclick="PassHtmlElementReference">Pass Html element reference</button>
+<div></div>
+<hr />
+
+@code {
+    private string? Result { get; set; } = "";
+    private Player? Player { get; set; }
+    private ElementReference elementToFocus;
+
+    private async Task ReturnsVoid() 
+    {
+        await IJSRuntime.InvokeVoidAsync("interop.showAlert", "Hello!!");
+    }
+
+    private async Task PassObject()
+    {
+        Player p = new Player { 
+            FirstName = "Aku", 
+            LastName = "Ankka", 
+            Position = Position.Forward
+        };
+        await IJSRuntime.InvokeVoidAsync("interop.passObject", p);
+    }
+
+    private async Task ReturnsValue()
+    {
+        Result = await IJSRuntime.InvokeAsync<string>("interop.returnsValue");
+    }
+
+    private async Task ObjectAsReturnValue()
+    {
+        Player = await IJSRuntime.InvokeAsync<Player>("interop.objectAsReturnValue", "Tikka", "Masala", Position.GoalKeeper);
+    }
+
+    private async Task PassHtmlElementReference()
+    {        
+        await IJSRuntime.InvokeVoidAsync("interop.focus", elementToFocus);
+    }
+}

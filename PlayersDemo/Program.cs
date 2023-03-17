@@ -17,6 +17,7 @@ builder.Services.AddDbContextFactory<PlayersDbContext>(
 
 builder.Services.AddScoped<StateManager>();
 
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
