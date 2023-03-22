@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.EntityFrameworkCore;
 using PlayersDemo.Data;
+using PlayersDemo.Services.LocalStorage;
+using PlayersDemo.Services.Settings;
 using PlayersDemo.Shared;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,7 +18,8 @@ builder.Services.AddDbContextFactory<PlayersDbContext>(
         "Data Source=(localDb)\\MSSQLLocalDb;Initial Catalog=PlayersManagerDb"));  // appsettings.json
 
 builder.Services.AddScoped<StateManager>();
-
+builder.Services.AddTransient<ILocalStorageService, LocalStorageService>();
+builder.Services.AddSingleton<IUserSettingsService, UserSettingsService>();
 
 var app = builder.Build();
 

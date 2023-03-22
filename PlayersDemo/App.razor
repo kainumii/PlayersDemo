@@ -1,4 +1,7 @@
-﻿<Router AppAssembly="@typeof(App).Assembly">
+﻿@inject PlayersDemo.Services.Settings.IUserSettingsService UserSettingsService
+@inject PlayersDemo.Services.LocalStorage.ILocalStorageService LocalStorageService
+
+<Router AppAssembly="@typeof(App).Assembly">
     <Found Context="routeData">
         <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
         <FocusOnNavigate RouteData="@routeData" Selector="h1" />
@@ -10,3 +13,24 @@
         </LayoutView>
     </NotFound>
 </Router>
+
+@code {
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await InitUserSettingsFromLocalStorareAsync();
+        }
+    }
+
+    private async Task InitUserSettingsFromLocalStorareAsync()
+    {
+        var joo = await LocalStorageService.GetItemAsync<PlayersDemo.Services.Settings.UserSettings>("settings");
+
+        if (joo != null)
+        {
+            UserSettingsService.UserSettings = joo;
+            UserSettingsService.RaiseSettingsChanged();
+        }
+    }
+}

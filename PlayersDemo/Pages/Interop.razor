@@ -2,6 +2,7 @@
 
 @inject IJSRuntime IJSRuntime
 @using PlayersDemo.Data.Models
+@using System.Drawing
 
 <h3>Interop</h3>
 
@@ -29,13 +30,31 @@
     <input @ref="elementToFocus" type="text" class="form-control mb-3"/>
 </div>
 <button class="btn btn-primary" @onclick="PassHtmlElementReference">Pass Html element reference</button>
-<div></div>
+<hr />
+
+<h5>Call static .Net method from JS</h5>
+<button class="btn btn-primary" onclick="interop.CallStaticDotNetMethod()">Call Static .Net Method from JS</button>
+<hr />
+
+<h5>Call .Net instance method from JS</h5>
+<div>Window size @WindowSize.Width x @WindowSize.Height</div>
+<button class="btn btn-primary" @onclick="PassDotNetInstanceToJS">Test</button>
+<hr />
+
+<h5>Check Location</h5>
+<button class="btn btn-primary" @onclick="GetLocation">Get Location</button>
+<div>Current Coordinates: @Coords?.Latitude @Coords?.Longitude</div>
 <hr />
 
 @code {
     private string? Result { get; set; } = "";
     private Player? Player { get; set; }
     private ElementReference elementToFocus;
+    private Size WindowSize;
+    private Coords? Coords { get; set; }
+
+    // Call JavaScript methods from .NET
+    // *********************************
 
     private async Task ReturnsVoid() 
     {
@@ -66,4 +85,59 @@
     {        
         await IJSRuntime.InvokeVoidAsync("interop.focus", elementToFocus);
     }
-}
+
+    // Call .Net methods from JavaScript
+    // *********************************
+
+    // DotNet.invokeMethodAsync("PlayersDemo", "BuildEmail", "Miikka");
+    // Promise {<pending>}
+    //     [[Prototype]]: Promise
+    //     [[PromiseState]]: "fulfilled"
+    //     [[PromiseResult]]: "Miikka@foo.com"
+
+    [JSInvokable]
+    public static string BuildEmail(string fname)
+    {
+        return $"{fname}@foo.com";
+    }
+
+    [JSInvokable]
+    public void SetWindowSize(Size size)
+    {
+        WindowSize = size;
+        StateHasChanged();
+    }
+
+    private async Task PassDotNetInstanceToJS()
+    {
+        // "this" doesnt work here
+        // IJSRuntime.InvokeVoidAsync("interop.xxxxxxxxxx", this);
+        // Use reference!
+
+        //var reference = DotNetObjectReference.Create(this);
+        //await IJSRuntime.InvokeVoidAsync("interop.callDotNetInstanceMethod", reference);
+    }
+
+
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender) 
+        {
+            var reference = DotNetObjectReference.Create(this);
+            await IJSRuntime.InvokeVoidAsync("interop.registerResizeHandler", reference);            
+        }
+    }
+
+    private async Task GetLocation()
+    {
+        var reference = DotNetObjectReference.Create(this);
+        await IJSRuntime.InvokeVoidAsync("interop.getLocation", reference);
+    }
+
+    [JSInvokable]
+    public void SetCurrentGeolocation(Coords coords)
+    {
+        Coords = coords;
+        StateHasChanged();
+    }
+}   

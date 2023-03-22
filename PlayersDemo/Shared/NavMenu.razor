@@ -1,16 +1,24 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@using PlayersDemo.Components
+
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid justify-content-center">
         <a class="navbar-brand" href="">
             <img src="/images/logo.png" class="logo"/>
         </a>
+        
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
             <span class="navbar-toggler-icon"></span>
         </button>
+
+        
     </div>
 </div>
 
+
+
 <div class="@NavMenuCssClass nav-menu" @onclick="ToggleNavMenu">
-    <nav class="flex-column">
+    <nav class="flex-column">     
+        
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
                 <span class="oi oi-home" aria-hidden="true"></span> Home
@@ -27,12 +35,24 @@
             </NavLink>
         </div>   
         <div class="nav-item px-3">
+            <NavLink class="nav-link" href="/settings">
+                <span class="oi oi-compass" aria-hidden="true"></span> Settings
+            </NavLink>
+        </div> 
+        <div class="nav-item px-3">
             <NavLink class="nav-link" href="/interop">
                 <span class="oi oi-flash" aria-hidden="true"></span> Interop
             </NavLink>
         </div>
+        <div class="nav-item px-3">
+            <div class="nav-link" >
+                <BrowserOnlineIndicator />
+            </div>
+            
+        </div>
     </nav>
 </div>
+
 
 @code {
     private bool collapseNavMenu = true;
