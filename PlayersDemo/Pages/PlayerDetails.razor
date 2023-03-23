@@ -1,0 +1,44 @@
+﻿@using PlayersDemo.Data.Models
+@using PlayersDemo.Data
+@using Microsoft.EntityFrameworkCore
+@inject IDbContextFactory<PlayersDbContext> ContextFactory
+@page "/players/playerdetails/{Id}"
+
+<h5>Player Details for @Player?.FirstName @Player?.LastName</h5>
+@if (ShowMap)
+{
+    <Map Markers="MapMarkers"/>
+}
+else
+{
+    <div>Coords are missing ..</div>
+}
+
+@code {
+    public List<Marker> MapMarkers = new List<Marker>();
+
+    [Parameter]
+    public string Id { get; set; }
+
+    public Player? Player { get; set; }
+
+    private bool ShowMap { get; set; } = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var context = ContextFactory.CreateDbContext();        
+        Player = await context.Players.FirstOrDefaultAsync(p => p.Id == int.Parse(Id));
+
+        // Latitude is the Y axis, longitude is the X axis
+
+        if (Player != null && Player.Latitude != 0 &&  Player.Longitude != 0 )
+        {
+            Marker m = new Marker();
+            m.X = Player.Longitude;
+            m.Y = Player.Latitude;
+            MapMarkers.Add(m);
+
+            ShowMap = true;
+        }
+    }
+}

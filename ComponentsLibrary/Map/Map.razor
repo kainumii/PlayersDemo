@@ -1,0 +1,17 @@
+﻿@using Microsoft.JSInterop
+@inject IJSRuntime JSRuntime
+
+<h5>Map</h5>
+<div id="@id" style="height: 400px; width:400px"></div>
+
+@code {
+    [Parameter]
+    public List<Marker> Markers { get; set; }
+
+    string id = Guid.NewGuid().ToString();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await JSRuntime.InvokeVoidAsync("deliveryMap.showOrUpdate", id, Markers);
+    }
+}

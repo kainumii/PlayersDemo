@@ -58,6 +58,7 @@ else
                     </td>
                     <td>
                         <a href="/players/edit/@p.Id" class="btn btn-outline-primary">Edit</a>
+                        <a href="/players/playerdetails/@p.Id" class="btn btn-outline-primary">Location</a>
                         <button class="btn btn-danger" @onclick="(() => HandleDelete(p))">Delete</button>
 
                     </td>
@@ -127,7 +128,7 @@ else
         var players = await context.Players
             .Include(p => p.Team)
             .Include(p => p.Citizenship)
-            .OrderBy(p => p.FirstName)
+            .OrderBy(p => p.LastName)
             .Skip(skip)
             .Take(PlayersPerPage)
             .ToArrayAsync();
