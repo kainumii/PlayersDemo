@@ -59,6 +59,18 @@
                     <InputCheckbox id="isright" @bind-Value="Player.IsRight" class="form-check-input" />
                 </div>
              </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="latitude" class="form-label">Latitude:</label>
+                    <InputNumber id="latitude" @bind-Value="Player.Latitude" class="form-control" />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="longitude" class="form-label">Longitude:</label>
+                    <InputNumber id="longitude" @bind-Value="Player.Longitude" class="form-control" />
+                </div>
+            </div>
+
         </div>
         
         @if (IsEdit) 

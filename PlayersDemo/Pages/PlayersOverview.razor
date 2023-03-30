@@ -28,6 +28,8 @@ else
                 <th>Team</th>
                 <th>Position</th>
                 <th>Citizenship</th>
+                <th>Langitude</th>
+                <th>Longitude</th>
                 <th>Modify</th>
             </tr>
         </thead>
@@ -55,6 +57,14 @@ else
                     </td>
                     <td>                        
                         @p.Citizenship?.Name
+                    </td>
+                    <td>
+                        @p.Latitude
+
+                    </td>
+                    <td>
+                        @p.Longitude
+
                     </td>
                     <td>
                         <a href="/players/edit/@p.Id" class="btn btn-outline-primary">Edit</a>
