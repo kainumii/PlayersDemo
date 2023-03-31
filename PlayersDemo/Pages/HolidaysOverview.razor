@@ -1,0 +1,103 @@
+﻿@page "/holidays"
+@using PlayersDemo.Data.Models
+@using Services.Holidays
+
+<h3>Holidays Overview</h3>
+
+<EditForm Model="@HolidayReqModel" OnValidSubmit="@HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+     <div class="container">
+            <div class="row">
+                <div class="col-md-2 mb-3">
+                    <label for="countrycode" class="form-label">Country Code</label>
+                    <InputText id="countrycode" class="form-control" @bind-Value="@HolidayReqModel.CountryCode"/>
+                    <ValidationMessage For="() => HolidayReqModel.CountryCode" />
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label for="countrycode" class="form-label">Year</label>
+                    <InputNumber id="year" class="form-control" @bind-Value="@HolidayReqModel.Year">2023</InputNumber>
+                    <ValidationMessage For="() => HolidayReqModel.Year" />
+                </div>
+                
+                     
+                              
+            
+        </div>
+
+        <button type="submit" class="btn btn-primary">Get Holidays</button>
+    </div>
+</EditForm>
+
+@if(Holidays == null)
+{
+    <div>Nothing to see here ...</div>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Local name</th>
+                <th>Date</th>
+                <th>Country code</th>
+                <th>Global</th>   
+                <th>Launch</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            @foreach (var p in Holidays)
+            {
+                <tr>
+                    <td>
+                        @p.Name
+                    </td>
+                    <td>
+                        @p.LocalName
+                    </td>
+                    <td>
+                        @p.Date.Value.ToLongDateString()
+                    </td>
+                    <td>
+                        @p.CountryCode
+
+                    </td>
+                    <td>
+                        @p.Global
+                    </td>
+                    <td>
+                        @p.LaunchYear
+                    </td>
+
+                </tr>
+            }
+
+        </tbody>
+    </table>
+}
+
+
+@code {
+
+    public HolidayRespModel[]? Holidays { get; set; }
+
+    public HolidayReqModel HolidayReqModel { get; set; } = new HolidayReqModel();
+
+    [Inject]
+    public IHolidaysApiService apiService { get; set; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        //var joo = await apiService.GetHolidays();
+        //Holidays = joo.ToArray();
+    }
+
+    private async Task HandleValidSubmit()
+    {        
+        var joo = await apiService.GetHolidays(HolidayReqModel);
+        Holidays = joo.ToArray();
+    }
+}

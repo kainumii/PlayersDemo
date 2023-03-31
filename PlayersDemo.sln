@@ -5,7 +5,7 @@ VisualStudioVersion = 17.3.32922.545
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayersDemo", "PlayersDemo\PlayersDemo.csproj", "{CB3DE454-43E7-4DB2-AAC4-996E7C3C1862}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComponentsLibrary", "ComponentsLibrary\ComponentsLibrary.csproj", "{3335632B-868F-42EC-86D2-05E6C3B0D162}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ComponentsLibrary", "ComponentsLibrary\ComponentsLibrary.csproj", "{3335632B-868F-42EC-86D2-05E6C3B0D162}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

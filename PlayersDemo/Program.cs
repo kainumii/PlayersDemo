@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.EntityFrameworkCore;
 using PlayersDemo.Data;
+using PlayersDemo.Services.Holidays;
 using PlayersDemo.Services.LocalStorage;
 using PlayersDemo.Services.Settings;
 using PlayersDemo.Shared;
@@ -20,6 +21,9 @@ builder.Services.AddDbContextFactory<PlayersDbContext>(
 builder.Services.AddScoped<StateManager>();
 builder.Services.AddTransient<ILocalStorageService, LocalStorageService>();
 builder.Services.AddSingleton<IUserSettingsService, UserSettingsService>();
+
+builder.Services.AddSingleton<IHolidaysApiService, HolidaysApiService>();
+builder.Services.AddHttpClient();
 
 var app = builder.Build();
 
